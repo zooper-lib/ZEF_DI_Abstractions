@@ -1,0 +1,39 @@
+name: PR Workflow
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  dart_workflow:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_DIR: "dependency_injection/zef_di_abstractions"
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+
+      # Install and setup Dart
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      # Install dependencies
+      - name: Install dependencies
+        run: cd ${{ env.PROJECT_DIR }} && dart pub get
+
+      # Run dart analyze
+      - name: Run dart analyze
+        run: cd ${{ env.PROJECT_DIR }} && dart analyze
+
+      # Run tests
+      - name: Run tests if test files exist
+        run: |
+          if compgen -G "${{ env.PROJECT_DIR }}/test/*_test.dart" > /dev/null; then
+            cd ${{ env.PROJECT_DIR }} && dart test
+          else
+            echo "No test files found in ${{ env.PROJECT_DIR }}/test"
+          fi
+        shell: bash
