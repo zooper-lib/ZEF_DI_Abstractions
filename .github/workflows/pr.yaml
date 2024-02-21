@@ -8,9 +8,6 @@ jobs:
   dart_workflow:
     runs-on: ubuntu-latest
 
-    env:
-      PROJECT_DIR: "dependency_injection/zef_di_abstractions"
-
     steps:
       # Checkout the code
       - uses: actions/checkout@v2
@@ -22,18 +19,18 @@ jobs:
 
       # Install dependencies
       - name: Install dependencies
-        run: cd ${{ env.PROJECT_DIR }} && dart pub get
+        run: dart pub get
 
       # Run dart analyze
       - name: Run dart analyze
-        run: cd ${{ env.PROJECT_DIR }} && dart analyze
+        run: dart analyze
 
       # Run tests
       - name: Run tests if test files exist
         run: |
-          if compgen -G "${{ env.PROJECT_DIR }}/test/*_test.dart" > /dev/null; then
-            cd ${{ env.PROJECT_DIR }} && dart test
+          if compgen -G "test/*_test.dart" > /dev/null; then
+            dart test
           else
-            echo "No test files found in ${{ env.PROJECT_DIR }}/test"
+            echo "No test files found in test/"
           fi
         shell: bash
