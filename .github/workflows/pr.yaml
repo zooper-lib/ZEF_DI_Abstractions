@@ -5,27 +5,41 @@ on:
     branches: [main, develop]
 
 jobs:
-  dart_workflow:
+  pr_workflow:
     runs-on: ubuntu-latest
 
-    steps:
-      # Checkout the code
-      - uses: actions/checkout@v2
+    env:
+      PROJECT_NAME: zef_di_abstractions
 
-      # Install and setup Dart
-      - uses: dart-lang/setup-dart@v1
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1.2
         with:
           sdk: stable
 
-      # Install dependencies
       - name: Install dependencies
         run: dart pub get
 
-      # Run dart analyze
+      - name: Check if version is published on pub.dev
+        run: |
+          PACKAGE_NAME="${{ env.PROJECT_NAME }}"
+          EXPECTED_VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2)
+          echo "Expected package version: $EXPECTED_VERSION"
+          LATEST_PUBLISHED_VERSION=$(curl -s https://pub.dev/packages/$PACKAGE_NAME | grep 'data-version="' | head -1 | sed -n 's/.*data-version="\([^"]*\)".*/\1/p')
+          echo "Latest published version on pub.dev: $LATEST_PUBLISHED_VERSION"
+          if [ "$EXPECTED_VERSION" = "$LATEST_PUBLISHED_VERSION" ]; then
+            echo "::error::Version $EXPECTED_VERSION is already published on pub.dev."
+            exit 1
+          else
+            echo "Version $EXPECTED_VERSION is not published on pub.dev. Proceeding..."
+          fi
+
       - name: Run dart analyze
         run: dart analyze
 
-      # Run tests
       - name: Run tests if test files exist
         run: |
           if compgen -G "test/*_test.dart" > /dev/null; then
