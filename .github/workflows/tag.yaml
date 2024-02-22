@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Get Version from pubspec.yaml
         id: get_version
@@ -40,6 +42,6 @@ jobs:
         if: steps.check_tag.outputs.SKIP == 'false'
         run: |
           git tag v${{ steps.get_version.outputs.VERSION }}
-          git push origin v${{ steps.get_version.outputs.VERSION }}
+          git push https://${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }} v${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
