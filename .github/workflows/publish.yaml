@@ -46,11 +46,9 @@ jobs:
       - name: Install Dependencies
         run: dart pub get
 
+      # Use the dart-lang/setup-dart publish step
       - name: Publish to pub.dev
-        run: dart pub publish --force
-        env:
-          PUB_HOSTED_URL: https://pub.dev
-          PUB_ACCESSTOKEN: ${{ secrets.PUB_ACCESSTOKEN }}
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
 
       - name: Create and Push Tag
         if: steps.check_tag.outputs.SKIP == 'false'
