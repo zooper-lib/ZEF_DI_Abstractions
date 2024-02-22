@@ -1,3 +1,7 @@
+## 0.0.4
+
+- Github workflow tests #3
+
 ## 0.0.3
 
 - Github workflow tests #2

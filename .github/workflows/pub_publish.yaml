@@ -2,8 +2,8 @@ name: Publish Dart Package
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+    branches:
+      - main
 
 jobs:
   publish:
@@ -18,6 +18,26 @@ jobs:
         with:
           fetch-depth: 0
 
+      # We extract the version from the pubspec.yaml file
+      - name: Get Version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Extracted version: $VERSION"
+          echo "::set-output name=VERSION::$VERSION"
+
+      # We check if the tag already exists. If it does, the package has already been published
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-list -q v${{ steps.get_version.outputs.VERSION }}; then
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} already exists. Skipping tag creation."
+            echo "::set-output name=SKIP::true"
+          else
+            echo "Tag does not exist. Proceeding with tag creation."
+            echo "::set-output name=SKIP::false"
+          fi
+
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1.2
         with:
@@ -28,3 +48,9 @@ jobs:
 
       - name: Publish to pub.dev
         run: dart pub publish --force
+
+      - name: Create and Push Tag
+        if: steps.check_tag.outputs.SKIP == 'false'
+        run: |
+          git tag v${{ steps.get_version.outputs.VERSION }}
+          git push origin v${{ steps.get_version.outputs.VERSION }}
