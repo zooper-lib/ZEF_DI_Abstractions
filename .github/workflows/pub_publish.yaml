@@ -48,6 +48,9 @@ jobs:
 
       - name: Publish to pub.dev
         run: dart pub publish --force
+        env:
+          PUB_HOSTED_URL: https://pub.dev
+          PUB_ACCESSTOKEN: ${{ secrets.PUB_ACCESSTOKEN }}
 
       - name: Create and Push Tag
         if: steps.check_tag.outputs.SKIP == 'false'
