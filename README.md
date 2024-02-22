@@ -1,6 +1,6 @@
 # zef_di_abstractions
 
-Your Package Description: A brief description of what your package does and its primary use case.
+A dart library which provides abstractions for dependency injection.
 
 ## Features
 
