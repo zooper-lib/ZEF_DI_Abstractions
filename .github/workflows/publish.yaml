@@ -8,13 +8,9 @@ on:
       - main
 
 jobs:
-  prep:
+  tag:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
-    outputs:
-      version: ${{ steps.get_version.outputs.VERSION }}
-      skip: ${{ steps.check_tag.outputs.SKIP }}
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -39,24 +35,17 @@ jobs:
             echo "::set-output name=SKIP::false"
           fi
 
-  publish:
-    needs: prep
-
-    permissions:
-      id-token: write
-
-    if: needs.prep.outputs.skip == 'false'
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-
-  tag:
-    needs: prep
-    if: needs.prep.outputs.skip == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
       - name: Create and Push Tag
         run: |
           git tag v${{ needs.prep.outputs.version }}
           git push origin v${{ needs.prep.outputs.version }}
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [tag]
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
