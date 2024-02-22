@@ -39,3 +39,13 @@ jobs:
           git push https://${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }} v${{ steps.get_version.outputs.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Workflow via Repository Dispatch
+        if: steps.check_tag.outputs.SKIP == 'false'
+        run: |
+          curl -X POST https://api.github.com/repos/${{ github.repository }}/dispatches \
+          -H 'Accept: application/vnd.github.v3+json' \
+          -H 'Authorization: token ${{ secrets.ACCESS_TOKEN }}' \
+          --data '{"event_type": "new-tag", "client_payload": { "tag": "v${{ steps.get_version.outputs.VERSION }}" }}'
+        env:
+          PAT: ${{ secrets.ACCESS_TOKEN }}

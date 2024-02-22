@@ -3,7 +3,9 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-      - "**"
+      - "v**"
+  repository_dispatch:
+    types: [new-tag]
 
 jobs:
   publish:
