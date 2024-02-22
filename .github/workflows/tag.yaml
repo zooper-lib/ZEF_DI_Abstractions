@@ -22,20 +22,24 @@ jobs:
       - name: Check if Tag Exists
         id: check_tag
         run: |
-          if git rev-parse "v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
-            echo "::set-output name=EXISTS::true"
+          if git rev-list -q v${{ steps.get_version.outputs.VERSION }}; then
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} already exists. Skipping tag creation."
+            echo "::set-output name=SKIP::true"
           else
-            echo "::set-output name=EXISTS::false"
+            echo "Tag does not exist. Proceeding with tag creation."
+            echo "::set-output name=SKIP::false"
           fi
 
       - name: Configure Git
-        if: steps.check_tag.outputs.EXISTS == 'false'
+        if: steps.check_tag.outputs.SKIP == 'false'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-      - name: Create Tag
-        if: steps.check_tag.outputs.EXISTS == 'false'
+      - name: Create and Push Tag
+        if: steps.check_tag.outputs.SKIP == 'false'
         run: |
           git tag v${{ steps.get_version.outputs.VERSION }}
           git push origin v${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
