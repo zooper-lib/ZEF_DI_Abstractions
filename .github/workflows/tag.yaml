@@ -1,0 +1,41 @@
+name: Auto Tagging from pubspec.yaml
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Extracted version: $VERSION"
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-list -q v${{ steps.get_version.outputs.VERSION }}; then
+            echo "Tag v${{ steps.get_version.outputs.VERSION }} already exists. Skipping tag creation."
+            echo "::set-output name=SKIP::true"
+          else
+            echo "Tag does not exist. Proceeding with tag creation."
+            echo "::set-output name=SKIP::false"
+          fi
+
+      - name: Create and Push Tag
+        if: steps.check_tag.outputs.SKIP == 'false'
+        run: |
+          git tag v${{ steps.get_version.outputs.VERSION }}
+          git push https://${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }} v${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
