@@ -6,12 +6,12 @@ on:
       - main
 
 jobs:
-  publish:
+  prep:
     runs-on: ubuntu-latest
 
-    permissions:
-      id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      skip: ${{ steps.check_tag.outputs.SKIP }}
 
     steps:
       - name: Checkout Code
@@ -19,7 +19,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # We extract the version from the pubspec.yaml file
       - name: Get Version from pubspec.yaml
         id: get_version
         run: |
@@ -27,7 +26,6 @@ jobs:
           echo "Extracted version: $VERSION"
           echo "::set-output name=VERSION::$VERSION"
 
-      # We check if the tag already exists. If it does, the package has already been published
       - name: Check if Tag Exists
         id: check_tag
         run: |
@@ -39,20 +37,24 @@ jobs:
             echo "::set-output name=SKIP::false"
           fi
 
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1.2
-        with:
-          sdk: stable
+  publish:
+    needs: prep
+    if: needs.prep.outputs.skip == 'false'
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      version: ${{ needs.prep.outputs.version }}
+    secrets:
+      pub_dev_token: ${{ secrets.PUB_DEV_TOKEN }}
 
-      - name: Install Dependencies
-        run: dart pub get
-
-      # Use the dart-lang/setup-dart publish step
-      - name: Publish to pub.dev
-        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+  tag:
+    needs: prep
+    if: needs.prep.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Create and Push Tag
-        if: steps.check_tag.outputs.SKIP == 'false'
         run: |
-          git tag v${{ steps.get_version.outputs.VERSION }}
-          git push origin v${{ steps.get_version.outputs.VERSION }}
+          git tag v${{ needs.prep.outputs.version }}
+          git push origin v${{ needs.prep.outputs.version }}
