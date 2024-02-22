@@ -1,0 +1,41 @@
+name: Auto Tagging from pubspec.yaml
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get Version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Extracted version: $VERSION"
+          echo "::set-output name=VERSION::$VERSION"
+
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.get_version.outputs.VERSION }}" >/dev/null 2>&1; then
+            echo "::set-output name=EXISTS::true"
+          else
+            echo "::set-output name=EXISTS::false"
+          fi
+
+      - name: Configure Git
+        if: steps.check_tag.outputs.EXISTS == 'false'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Create Tag
+        if: steps.check_tag.outputs.EXISTS == 'false'
+        run: |
+          git tag v${{ steps.get_version.outputs.VERSION }}
+          git push origin v${{ steps.get_version.outputs.VERSION }}
