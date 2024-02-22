@@ -39,6 +39,10 @@ jobs:
 
   publish:
     needs: prep
+
+    permissions:
+      id-token: write
+
     if: needs.prep.outputs.skip == 'false'
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
 
