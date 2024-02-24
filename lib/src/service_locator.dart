@@ -25,11 +25,14 @@ abstract class ServiceLocator {
 
   /// Registers a singleton instance of a service with the locator.
   ///
-  /// [instance] - The singleton instance to register.
-  /// [interfaces] - Optional list of interfaces that the instance conforms to, used for interface-based resolution.
-  /// [name] - An optional name to register the instance under; allows for named registrations.
-  /// [key] - An optional key to further qualify the registration; useful for scenarios where type and name are insufficient.
-  /// [environment] - An optional environment tag to restrict the registration's availability to certain runtime environments.
+  /// - `instance`: The singleton instance to register. Must be a non-null object.
+  /// - `interfaces`: Optional list of interfaces that the instance conforms to, used for interface-based resolution.
+  /// - `name`: An optional name to register the instance under; allows for named registrations.
+  /// - `key`: An optional key to further qualify the registration; useful for scenarios where type and name are insufficient.
+  /// - `environment`: An optional environment tag to restrict the registration's availability to certain runtime environments.
+  ///
+  /// Throws `StateError` if a registration conflict occurs and the configuration is set to throw errors. This ensures that duplicate registrations are explicitly handled.
+  /// Additionally, it may throw other errors related to internal processing depending on the underlying adapter's implementation.
   void registerInstance<T extends Object>(
     T instance, {
     List<Type>? interfaces,
@@ -40,11 +43,14 @@ abstract class ServiceLocator {
 
   /// Registers a factory method for instance creation with the locator.
   ///
-  /// [factory] - A function that returns an instance of type [T], allowing for lazy instantiation.
-  /// [interfaces] - Optional list of interfaces that the factory's products conform to, used for interface-based resolution.
-  /// [name] - An optional name for the factory registration; allows for named factory registrations.
-  /// [key] - An optional key to further qualify the registration; useful for complex registration scenarios.
-  /// [environment] - An optional environment tag to restrict the factory registration's availability to certain runtime environments.
+  /// - `factory`: A function that returns an instance of type `T`, allowing for lazy instantiation. This enables more flexible and dynamic service creation.
+  /// - `interfaces`: Optional list of interfaces that the factory's products conform to, used for interface-based resolution.
+  /// - `name`: An optional name for the factory registration; allows for named factory registrations.
+  /// - `key`: An optional key to further qualify the registration; useful for complex registration scenarios.
+  /// - `environment`: An optional environment tag to restrict the factory registration's availability to certain runtime environments.
+  ///
+  /// Throws `StateError` if a registration conflict occurs and the configuration is set to throw errors. This ensures that duplicate registrations are explicitly handled.
+  /// Additionally, it may throw other errors related to internal processing depending on the underlying adapter's implementation.
   void registerFactory<T extends Object>(
     T Function(ServiceLocator serviceLocator) factory, {
     List<Type>? interfaces,
@@ -53,13 +59,14 @@ abstract class ServiceLocator {
     String? environment,
   });
 
-  /// Retrieves the first registered instance of type [T] that matches the given criteria.
+  /// Retrieves the first registered instance of type `T` that matches the given criteria.
   ///
-  /// [interface] - An optional interface type to filter the instances by the interface they implement.
-  /// [name] - An optional name to filter the instances by their registered name.
-  /// [key] - An optional key to further refine the filtering of instances.
-  /// [environment] - An optional environment tag to filter instances available in the specified environment.
-  /// Returns `null` if no matching instance is found.
+  /// - `interface`: An optional interface type to filter the instances by the interface they implement.
+  /// - `name`: An optional name to filter the instances by their registered name.
+  /// - `key`: An optional key to further refine the filtering of instances.
+  /// - `environment`: An optional environment tag to filter instances available in the specified environment.
+  ///
+  /// Returns `null` if no matching instance is found, unless the configuration is set to throw errors, in which case a `StateError` is thrown. This behavior facilitates strict error handling policies.
   T? getFirst<T extends Object>({
     Type? interface,
     String? name,
@@ -67,13 +74,14 @@ abstract class ServiceLocator {
     String? environment,
   });
 
-  /// Retrieves all instances of type [T] matching the specified criteria.
+  /// Retrieves all instances of type `T` matching the specified criteria.
   ///
-  /// [interface] - An optional interface type to filter the instances by the interface they implement.
-  /// [name] - An optional name to filter the instances by their registered name.
-  /// [key] - An optional key to further refine the filtering of instances.
-  /// [environment] - An optional environment tag to filter instances available in the specified environment.
-  /// Returns an empty list if no matching instances are found.
+  /// - `interface`: An optional interface type to filter the instances by the interface they implement.
+  /// - `name`: An optional name to filter the instances by their registered name.
+  /// - `key`: An optional key to further refine the filtering of instances.
+  /// - `environment`: An optional environment tag to filter instances available in the specified environment.
+  ///
+  /// Returns an empty list if no matching instances are found. If the configuration is set to throw errors and no instances are found, a `StateError` may be thrown, indicating a resolution failure.
   List<T> getAll<T extends Object>({
     Type? interface,
     String? name,
@@ -83,10 +91,12 @@ abstract class ServiceLocator {
 
   /// Overrides an existing singleton registration with a new instance.
   ///
-  /// [instance] - The new instance to replace the existing registration.
-  /// [name] - An optional name to specify which named registration to override.
-  /// [key] - An optional key to further specify which registration to override.
-  /// [environment] - An optional environment tag to specify which environment-specific registration to override.
+  /// - `instance`: The new instance to replace the existing registration. This allows for dynamic updates to the service instances.
+  /// - `name`: An optional name to specify which named registration to override.
+  /// - `key`: An optional key to further specify which registration to override.
+  /// - `environment`: An optional environment tag to specify which environment-specific registration to override.
+  ///
+  /// Throws `StateError` if the operation results in an internal error, such as when trying to override a non-existent registration, ensuring that such errors are explicitly handled.
   void overrideInstance<T extends Object>(
     T instance, {
     String? name,
@@ -96,10 +106,12 @@ abstract class ServiceLocator {
 
   /// Overrides an existing factory registration with a new factory method.
   ///
-  /// [factory] - The new factory method to replace the existing factory registration.
-  /// [name] - An optional name to specify which named factory registration to override.
-  /// [key] - An optional key to further specify which factory registration to override.
-  /// [environment] - An optional environment tag to specify which environment-specific factory registration to override.
+  /// - `factory`: The new factory method to replace the existing factory registration. This allows for updating the logic used to create service instances.
+  /// - `name`: An optional name to specify which named factory registration to override.
+  /// - `key`: An optional key to further specify which factory registration to override.
+  /// - `environment`: An optional environment tag to specify which environment-specific factory registration to override.
+  ///
+  /// Throws `StateError` for internal errors during the override process, such as when attempting to override a factory that does not exist, ensuring robust error handling.
   void overrideFactory<T extends Object>(
     T Function(ServiceLocator serviceLocator) factory, {
     String? name,
@@ -107,11 +119,13 @@ abstract class ServiceLocator {
     String? environment,
   });
 
-  /// Unregisters instances and factories of type [T] matching the specified criteria.
+  /// Unregisters instances and factories of type `T` matching the specified criteria.
   ///
-  /// [name] - An optional name to specify which named registrations to unregister.
-  /// [key] - An optional key to further specify which registrations to unregister.
-  /// [environment] - An optional environment tag to specify which environment-specific registrations to unregister.
+  /// - `name`: An optional name to specify which named registrations to unregister.
+  /// - `key`: An optional key to further specify which registrations to unregister.
+  /// - `environment`: An optional environment tag to specify which environment-specific registrations to unregister.
+  ///
+  /// This method helps in cleaning up or dynamically modifying the service registrations. Throws `StateError` if an internal error occurs during the unregistration process, such as when trying to unregister a non-existent service, to ensure explicit error handling.
   void unregister<T extends Object>({
     String? name,
     dynamic key,
@@ -120,7 +134,8 @@ abstract class ServiceLocator {
 
   /// Clears all registrations from the service locator.
   ///
-  /// This method removes all singleton and factory registrations, resetting the service locator to its initial state.
+  /// This method removes all singleton and factory registrations, resetting the service locator to its initial state. Useful for teardown processes or reinitializing the service configuration.
+  /// Throws `StateError` if an internal error occurs during the unregistration process, ensuring that such critical operations are fail-safe.
   void unregisterAll();
 }
 
@@ -166,14 +181,17 @@ class ServiceLocatorBuilder {
   /// Throws [StateError] if an adapter has not been set, as it is essential for the [ServiceLocator]'s operation.
   void build() {
     if (ServiceLocator._instance != null) {
-      throw StateError('ServiceLocator has already been initialized and cannot be configured again.');
+      throw StateError(
+          'ServiceLocator has already been initialized and cannot be configured again.');
     }
 
     if (_adapter == null) {
-      throw StateError('A ServiceLocatorAdapter must be provided before building the ServiceLocator.');
+      throw StateError(
+          'A ServiceLocatorAdapter must be provided before building the ServiceLocator.');
     }
 
     // Assigns the newly configured ServiceLocator instance to its singleton reference.
-    ServiceLocator._instance = ConcreteServiceLocator(adapter: _adapter!, config: _config);
+    ServiceLocator._instance =
+        ConcreteServiceLocator(adapter: _adapter!, config: _config);
   }
 }

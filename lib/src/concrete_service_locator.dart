@@ -1,4 +1,5 @@
-import 'helpers/log_helper.dart';
+import 'package:zef_log_core/zef_log_core.dart';
+
 import 'helpers/user_messages.dart';
 import 'service_locator.dart';
 import 'service_locator_adapter.dart';
@@ -32,21 +33,26 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On conflict
     if (response.isSecond) {
-      LogHelper.log(
-        registrationAlreadyExistsForType(T),
-        level: LogLevel.warning,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
+      if (_config.throwErrors) {
+        throw StateError(registrationAlreadyExistsForType(T));
+      } else {
+        Logger.I.warning(message: registrationAlreadyExistsForType(T));
+        return;
+      }
     }
 
     // On internal error
     if (response.isThird) {
-      LogHelper.log(
-        internalErrorOccurred(response.third.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.third.message);
+      if (_config.throwErrors) {
+        throw StateError(internalErrorOccurred(response.third.message));
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.third.message),
+          error: response.third.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 
@@ -67,22 +73,27 @@ class ConcreteServiceLocator implements ServiceLocator {
     );
 
     // On conflict
-    if (response.isSecond && _config.minimumLogLevel <= LogLevel.warning) {
-      LogHelper.log(
-        registrationAlreadyExistsForType(T),
-        level: LogLevel.warning,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
+    if (response.isSecond) {
+      if (_config.throwErrors) {
+        throw StateError(registrationAlreadyExistsForType(T));
+      } else {
+        Logger.I.warning(message: registrationAlreadyExistsForType(T));
+        return;
+      }
     }
 
     // On internal error
     if (response.isThird) {
-      LogHelper.log(
-        internalErrorOccurred(response.third.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.third.message);
+      if (_config.throwErrors) {
+        throw StateError(internalErrorOccurred(response.third.message));
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.third.message),
+          error: response.third.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 
@@ -100,24 +111,27 @@ class ConcreteServiceLocator implements ServiceLocator {
     );
 
     // On not found
-    if (response.isSecond && _config.minimumLogLevel <= LogLevel.warning) {
-      LogHelper.log(
-        registrationAlreadyExistsForType(T),
-        level: LogLevel.warning,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-
-      return null;
+    if (response.isSecond) {
+      if (_config.throwErrors) {
+        throw StateError(noRegistrationFoundForType(T));
+      } else {
+        Logger.I.warning(message: noRegistrationFoundForType(T));
+        return null;
+      }
     }
 
     // On internal error
     if (response.isThird) {
-      LogHelper.log(
-        internalErrorOccurred(response.third.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.third.message);
+      if (_config.throwErrors) {
+        throw StateError(internalErrorOccurred(response.third.message));
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.third.message),
+          error: response.third.message,
+          stackTrace: StackTrace.current,
+        );
+        return null;
+      }
     }
 
     return response.first;
@@ -138,22 +152,26 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On not found
     if (response.isSecond) {
-      LogHelper.log(
-        registrationAlreadyExistsForType(T),
-        level: LogLevel.warning,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      return [];
+      if (_config.throwErrors) {
+        throw StateError(noRegistrationFoundForType(T));
+      } else {
+        Logger.I.warning(message: noRegistrationFoundForType(T));
+        return [];
+      }
     }
 
     // On internal error
     if (response.isThird) {
-      LogHelper.log(
-        internalErrorOccurred(response.third.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.third.message);
+      if (_config.throwErrors) {
+        throw StateError(internalErrorOccurred(response.third.message));
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.third.message),
+          error: response.third.message,
+          stackTrace: StackTrace.current,
+        );
+        return [];
+      }
     }
 
     return response.first;
@@ -175,12 +193,16 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      LogHelper.log(
-        internalErrorOccurred(response.second.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.second.message);
+      if (_config.throwErrors) {
+        throw StateError(response.second.message);
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.second.message),
+          error: response.second.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 
@@ -200,12 +222,16 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      LogHelper.log(
-        internalErrorOccurred(response.second.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.second.message);
+      if (_config.throwErrors) {
+        throw StateError(response.second.message);
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.second.message),
+          error: response.second.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 
@@ -222,22 +248,27 @@ class ConcreteServiceLocator implements ServiceLocator {
     );
 
     // On not found
-    if (response.isSecond && _config.minimumLogLevel <= LogLevel.warning) {
-      LogHelper.log(
-        registrationAlreadyExistsForType(T),
-        level: LogLevel.warning,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
+    if (response.isSecond) {
+      if (_config.throwErrors) {
+        throw StateError(noRegistrationFoundForType(T));
+      } else {
+        Logger.I.warning(message: noRegistrationFoundForType(T));
+        return;
+      }
     }
 
     // On internal error
     if (response.isThird) {
-      LogHelper.log(
-        internalErrorOccurred(response.third.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.third.message);
+      if (_config.throwErrors) {
+        throw StateError(response.third.message);
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.third.message),
+          error: response.third.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 
@@ -247,12 +278,16 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      LogHelper.log(
-        internalErrorOccurred(response.second.message),
-        level: LogLevel.error,
-        minimumLogLevel: _config.minimumLogLevel,
-      );
-      throw StateError(response.second.message);
+      if (_config.throwErrors) {
+        throw StateError(response.second.message);
+      } else {
+        Logger.I.fatal(
+          message: internalErrorOccurred(response.second.message),
+          error: response.second.message,
+          stackTrace: StackTrace.current,
+        );
+        return;
+      }
     }
   }
 }
