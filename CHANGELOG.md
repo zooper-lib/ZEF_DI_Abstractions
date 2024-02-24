@@ -1,3 +1,8 @@
+## 0.0.9
+
+- Implemented usage of zef_log_core
+- Implemented property to set if errors should be thrown
+
 ## 0.0.8
 
 - Github workflow tests #7
