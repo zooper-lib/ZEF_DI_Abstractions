@@ -2,16 +2,17 @@ import 'package:zef_di_abstractions/zef_di_abstractions.dart';
 
 import 'concrete_service_locator.dart';
 
-/// A central class for managing dependencies and providing service instances in a dependency injection framework.
+/// Manages dependencies and service instances within a dependency injection framework.
 ///
-/// This class allows for registering and resolving service instances based on types, names, keys, and environments.
-/// It supports singleton and factory-based registrations to provide flexibility in managing service lifecycles.
+/// Supports registering and resolving service instances by type, name, key, and environment.
+/// Allows for both singleton and factory-based service registrations, facilitating flexible
+/// management of service lifecycles.
 abstract class ServiceLocator {
   static ServiceLocator? _instance;
 
-  /// Gets the singleton instance of the [ServiceLocator].
+  /// Retrieves the singleton instance of [ServiceLocator], initializing it through [ServiceLocatorBuilder].
   ///
-  /// Throws [StateError] if the [ServiceLocator] has not been initialized using the [ServiceLocatorBuilder].
+  /// Throws [StateError] if [ServiceLocator] is accessed before initialization.
   static ServiceLocator get instance {
     if (_instance == null) {
       throw StateError(
@@ -52,41 +53,74 @@ abstract class ServiceLocator {
   /// Throws `StateError` if a registration conflict occurs and the configuration is set to throw errors. This ensures that duplicate registrations are explicitly handled.
   /// Additionally, it may throw other errors related to internal processing depending on the underlying adapter's implementation.
   void registerFactory<T extends Object>(
-    T Function(ServiceLocator serviceLocator) factory, {
+    T Function(
+      ServiceLocator serviceLocator,
+      Map<String, dynamic> namedArgs,
+    ) factory, {
     List<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
   });
 
-  /// Retrieves the first registered instance of type `T` that matches the given criteria.
+  /// Resolves the first registered instance of type `T` that matches the given criteria.
   ///
   /// - `interface`: An optional interface type to filter the instances by the interface they implement.
   /// - `name`: An optional name to filter the instances by their registered name.
   /// - `key`: An optional key to further refine the filtering of instances.
   /// - `environment`: An optional environment tag to filter instances available in the specified environment.
+  /// - `namedArgs`: Optional. A map of named arguments that can be passed to the factory function to influence the instantiation
+  ///                of the service. This allows for more flexible and context-specific service creation, accommodating various
+  ///                dependencies or configuration values needed at runtime.
   ///
-  /// Returns `null` if no matching instance is found, unless the configuration is set to throw errors, in which case a `StateError` is thrown. This behavior facilitates strict error handling policies.
-  T? getFirst<T extends Object>({
+  /// Throws [StateError] if no matching instance is found.
+  /// Note: It does not consider the settings of the [ServiceLocatorConfig.throwErrors].
+  T resolve<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
     String? environment,
+    Map<String, dynamic>? namedArgs,
+    bool resolveFirst = true,
   });
 
-  /// Retrieves all instances of type `T` matching the specified criteria.
+  /// Resolves the first instance of type `T`, returning `null` if not found.
   ///
   /// - `interface`: An optional interface type to filter the instances by the interface they implement.
   /// - `name`: An optional name to filter the instances by their registered name.
   /// - `key`: An optional key to further refine the filtering of instances.
   /// - `environment`: An optional environment tag to filter instances available in the specified environment.
+  /// - `namedArgs`: Optional. A map of named arguments that can be passed to the factory function to influence the instantiation
+  ///                of the service. This allows for more flexible and context-specific service creation, accommodating various
+  ///                dependencies or configuration values needed at runtime.
   ///
-  /// Returns an empty list if no matching instances are found. If the configuration is set to throw errors and no instances are found, a `StateError` may be thrown, indicating a resolution failure.
-  List<T> getAll<T extends Object>({
+  /// Throws `StateError` if no registration was found and the configuration is set to throw errors.
+  /// Additionally, it may throw other errors related to internal processing depending on the underlying adapter's implementation.
+  T? resolveOrNull<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
     String? environment,
+    Map<String, dynamic>? namedArgs,
+  });
+
+  /// Resolves all instances of type `T` matching the specified criteria.
+  ///
+  /// - `interface`: An optional interface type to filter the instances by the interface they implement.
+  /// - `name`: An optional name to filter the instances by their registered name.
+  /// - `key`: An optional key to further refine the filtering of instances.
+  /// - `environment`: An optional environment tag to filter instances available in the specified environment.
+  /// - `namedArgs`: Optional. A map of named arguments that can be passed to the factory function to influence the instantiation
+  ///                of the service. This allows for more flexible and context-specific service creation, accommodating various
+  ///                dependencies or configuration values needed at runtime.
+  ///
+  /// Returns an empty list if no matching instances are found. If the configuration is set to throw errors and no instances are found, a `StateError` may be thrown, indicating a resolution failure.
+  List<T> resolveAll<T extends Object>({
+    Type? interface,
+    String? name,
+    dynamic key,
+    String? environment,
+    Map<String, dynamic>? namedArgs,
   });
 
   /// Overrides an existing singleton registration with a new instance.
@@ -113,7 +147,10 @@ abstract class ServiceLocator {
   ///
   /// Throws `StateError` for internal errors during the override process, such as when attempting to override a factory that does not exist, ensuring robust error handling.
   void overrideFactory<T extends Object>(
-    T Function(ServiceLocator serviceLocator) factory, {
+    T Function(
+      ServiceLocator serviceLocator,
+      Map<String, dynamic> namedArgs,
+    ) factory, {
     String? name,
     dynamic key,
     String? environment,

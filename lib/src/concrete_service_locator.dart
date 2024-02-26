@@ -29,6 +29,7 @@ class ConcreteServiceLocator implements ServiceLocator {
       name: name,
       key: key,
       environment: environment,
+      allowMultipleInstances: _config.allowMultipleInstances,
     );
 
     // On conflict
@@ -43,22 +44,16 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isThird) {
-      if (_config.throwErrors) {
-        throw StateError(internalErrorOccurred(response.third.message));
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.third.message),
-          error: response.third.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.third.message));
     }
   }
 
   @override
   void registerFactory<T extends Object>(
-    T Function(ServiceLocator serviceLocator) factory, {
+    T Function(
+      ServiceLocator serviceLocator,
+      Map<String, dynamic> namedArgs,
+    ) factory, {
     List<Type>? interfaces,
     String? name,
     dynamic key,
@@ -70,6 +65,7 @@ class ConcreteServiceLocator implements ServiceLocator {
       name: name,
       key: key,
       environment: environment,
+      allowMultipleInstances: _config.allowMultipleInstances,
     );
 
     // On conflict
@@ -84,70 +80,89 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isThird) {
-      if (_config.throwErrors) {
-        throw StateError(internalErrorOccurred(response.third.message));
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.third.message),
-          error: response.third.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.third.message));
     }
   }
 
   @override
-  T? getFirst<T extends Object>({
+  T resolve<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
     String? environment,
+    Map<String, dynamic>? namedArgs,
+    bool resolveFirst = true,
   }) {
-    final response = _adapter.getFirst<T>(
+    final response = _adapter.resolve<T>(
       name: name,
       key: key,
       environment: environment,
+      namedArgs: namedArgs ?? {},
+      resolveFirst: resolveFirst,
     );
 
     // On not found
     if (response.isSecond) {
-      if (_config.throwErrors) {
-        throw StateError(noRegistrationFoundForType(T));
-      } else {
-        Logger.I.warning(message: noRegistrationFoundForType(T));
-        return null;
-      }
+      // No need to check if throwErrors is true, as we cannot return null here
+      throw StateError(noRegistrationFoundForType(T));
     }
 
     // On internal error
     if (response.isThird) {
-      if (_config.throwErrors) {
-        throw StateError(internalErrorOccurred(response.third.message));
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.third.message),
-          error: response.third.message,
-          stackTrace: StackTrace.current,
-        );
-        return null;
-      }
+      throw StateError(internalErrorOccurred(response.third.message));
     }
 
     return response.first;
   }
 
   @override
-  List<T> getAll<T extends Object>({
+  T? resolveOrNull<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
     String? environment,
+    Map<String, dynamic>? namedArgs,
+    bool resolveFirst = true,
   }) {
-    final response = _adapter.getAll<T>(
+    final response = _adapter.resolve<T>(
       name: name,
       key: key,
       environment: environment,
+      namedArgs: namedArgs ?? {},
+      resolveFirst: resolveFirst,
+    );
+
+    // On not found
+    if (response.isSecond) {
+      if (_config.throwErrors) {
+        throw StateError(noRegistrationFoundForType(T));
+      } else {
+        Logger.I.warning(message: noRegistrationFoundForType(T));
+        return null;
+      }
+    }
+
+    // On internal error
+    if (response.isThird) {
+      throw StateError(internalErrorOccurred(response.third.message));
+    }
+
+    return response.first;
+  }
+
+  @override
+  List<T> resolveAll<T extends Object>({
+    Type? interface,
+    String? name,
+    dynamic key,
+    String? environment,
+    Map<String, dynamic>? namedArgs,
+  }) {
+    final response = _adapter.resolveAll<T>(
+      name: name,
+      key: key,
+      environment: environment,
+      namedArgs: namedArgs ?? {},
     );
 
     // On not found
@@ -162,16 +177,7 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isThird) {
-      if (_config.throwErrors) {
-        throw StateError(internalErrorOccurred(response.third.message));
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.third.message),
-          error: response.third.message,
-          stackTrace: StackTrace.current,
-        );
-        return [];
-      }
+      throw StateError(internalErrorOccurred(response.third.message));
     }
 
     return response.first;
@@ -193,22 +199,16 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      if (_config.throwErrors) {
-        throw StateError(response.second.message);
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.second.message),
-          error: response.second.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.second.message));
     }
   }
 
   @override
   void overrideFactory<T extends Object>(
-    T Function(ServiceLocator serviceLocator) factory, {
+    T Function(
+      ServiceLocator serviceLocator,
+      Map<String, dynamic> namedArgs,
+    ) factory, {
     String? name,
     dynamic key,
     String? environment,
@@ -222,16 +222,7 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      if (_config.throwErrors) {
-        throw StateError(response.second.message);
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.second.message),
-          error: response.second.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.second.message));
     }
   }
 
@@ -259,16 +250,7 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isThird) {
-      if (_config.throwErrors) {
-        throw StateError(response.third.message);
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.third.message),
-          error: response.third.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.second.message));
     }
   }
 
@@ -278,16 +260,7 @@ class ConcreteServiceLocator implements ServiceLocator {
 
     // On internal error
     if (response.isSecond) {
-      if (_config.throwErrors) {
-        throw StateError(response.second.message);
-      } else {
-        Logger.I.fatal(
-          message: internalErrorOccurred(response.second.message),
-          error: response.second.message,
-          stackTrace: StackTrace.current,
-        );
-        return;
-      }
+      throw StateError(internalErrorOccurred(response.second.message));
     }
   }
 }
