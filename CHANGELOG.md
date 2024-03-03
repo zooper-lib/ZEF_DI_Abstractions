@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Renamed class `Registration` to `BaseRegistration` because of a conflict
+
 ## 1.1.0
 
 - Added annotations for the generator
