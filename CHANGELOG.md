@@ -1,3 +1,7 @@
+## 1.1.0
+
+- Added annotations for the generator
+
 ## 1.0.0
 
 - Possibility to pass arguments to factory resolutions

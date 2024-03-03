@@ -7,6 +7,7 @@ A dart library which provides abstractions for dependency injection.
 - **Framework Agnostic**: Designed to be a flexible wrapper, this package can be used with any Dependency Injection (DI) framework, offering a unified interface for service registration and resolution.
 - **Multiple Service Resolution**: Supports resolving multiple services registered under the same interface, enhancing the flexibility of service retrieval in complex applications.
 - **Custom Adapter Integration**: Enables users to integrate any external DI framework by writing custom adapters, ensuring compatibility and extending functionality according to project needs.
+- **Code generation**: Automatic dependency registration and resolution.
 
 ## Getting Started
 
@@ -154,6 +155,10 @@ final UserService userService =
 ```
 
 If you don't pass a required named argument, a `TypeError` will be thrown.
+
+## Code generation
+
+If you want to use the code generator, please refer to [this package here](https://pub.dev/zef_di_abstractions_generator).
 
 ## Customization and Extensibility
 
