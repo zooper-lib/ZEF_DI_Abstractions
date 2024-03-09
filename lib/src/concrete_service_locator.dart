@@ -1,3 +1,4 @@
+import 'package:zef_helpers_lazy/zef_helpers_lazy.dart';
 import 'package:zef_log_core/zef_log_core.dart';
 
 import 'helpers/user_messages.dart';
@@ -61,6 +62,39 @@ class ConcreteServiceLocator implements ServiceLocator {
   }) {
     final response = _adapter.registerFactory<T>(
       factory,
+      interfaces: interfaces,
+      name: name,
+      key: key,
+      environment: environment,
+      allowMultipleInstances: _config.allowMultipleInstances,
+    );
+
+    // On conflict
+    if (response.isSecond) {
+      if (_config.throwErrors) {
+        throw StateError(registrationAlreadyExistsForType(T));
+      } else {
+        Logger.I.warning(message: registrationAlreadyExistsForType(T));
+        return;
+      }
+    }
+
+    // On internal error
+    if (response.isThird) {
+      throw StateError(internalErrorOccurred(response.third.message));
+    }
+  }
+
+  @override
+  void registerLazy<T extends Object>(
+    Lazy<T> lazyInstance, {
+    List<Type>? interfaces,
+    String? name,
+    dynamic key,
+    String? environment,
+  }) {
+    final response = _adapter.registerLazy<T>(
+      lazyInstance,
       interfaces: interfaces,
       name: name,
       key: key,

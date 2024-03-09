@@ -1,15 +1,35 @@
+import 'service_locator.dart';
+
+/// Configuration settings for customizing the behavior of the [ServiceLocator].
+///
+/// This class encapsulates the configurable aspects of the [ServiceLocator], allowing clients to tailor
+/// its behavior according to the needs of their application. It provides options to control error handling
+/// and the registration of multiple instances of the same type.
 class ServiceLocatorConfig {
   const ServiceLocatorConfig({
     this.throwErrors = false,
     this.allowMultipleInstances = true,
   });
 
-  /// Indicates if the service locator should throw errors when they occur.
-  /// If set to `false`, the service locator will log the error and continue.
-  /// This does not prevent the framework from throwing errors when an internal error occurs.
+  /// Determines the error handling behavior of the [ServiceLocator].
+  ///
+  /// When set to `true`, the [ServiceLocator] will actively throw errors encountered during service
+  /// registration, resolution, or unregistration. This can be helpful for debugging and ensuring that
+  /// service misconfigurations are surfaced immediately.
+  ///
+  /// Conversely, when set to `false`, the [ServiceLocator] will log errors without throwing, allowing
+  /// the application to continue running. This might be preferred in production environments where
+  /// resilience is prioritized over immediate error reporting.
   final bool throwErrors;
 
-  /// Indicates if the service locator should allow multiple instances of the same type.
-  /// If set to `false`, the service locator will throw an error when it detects multiple instances of the same type.
+  /// Controls whether the [ServiceLocator] permits the registration of multiple instances of the same type.
+  ///
+  /// By default, set to `true`, allowing multiple instances of the same service type to be registered,
+  /// potentially under different names or keys. This supports use cases where variations of a service
+  /// are needed, each with its own specific configuration or state.
+  ///
+  /// Setting this to `false` enforces a stricter policy where only one instance of each service type
+  /// is allowed. Attempting to register additional instances will result in an error. This strictness
+  /// can help prevent unintended service duplications and encourage a more consistent service landscape.
   final bool allowMultipleInstances;
 }
