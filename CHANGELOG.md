@@ -1,3 +1,9 @@
+## 1.2.0
+
+- Added methods for lazy registration
+- Added new Annotation `RegisterLazy`
+- Improved many dart doc comments
+
 ## 1.1.1
 
 - Renamed class `Registration` to `BaseRegistration` because of a conflict

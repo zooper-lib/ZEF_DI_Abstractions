@@ -156,6 +156,32 @@ final UserService userService =
 
 If you don't pass a required named argument, a `TypeError` will be thrown.
 
+### Lazy Registration
+
+In addition to the existing instance and factory registration capabilities, this package now supports lazy registration of services. Lazy registration allows you to defer the creation of an object until it is first needed, which can improve the startup time of your application and reduce initial memory usage.
+
+```dart
+ServiceLocator.I.registerLazy<MyLazyService>(
+  Lazy<MyLazyService>(() => MyLazyService()),
+);
+```
+
+With lazy registration, the `MyLazyService` instance will not be created at the time of registration but will be instantiated upon the first call to resolve.
+
+To resolve a lazy registered service, you use the same resolve method:
+
+```dart
+final MyLazyService myLazyService = ServiceLocator.I.resolve<MyLazyService>();
+```
+
+The first call to resolve for a lazy registered service will instantiate the service, and subsequent calls will return the same instance, preserving the singleton nature of the service within the scope of the application.
+
+#### Advantages of Lazy Registration
+
+- Improved Startup Performance: By deferring the instantiation of services until they are actually needed, you can reduce the workload during application startup, leading to faster launch times.
+- Optimized Resource Usage: Lazy registration helps in minimizing the memory footprint at startup by only creating service instances when they are required.
+- Flexibility: This feature adds an extra layer of flexibility in managing service lifecycles, allowing for a more dynamic and responsive application structure.
+
 ## Code generation
 
 If you want to use the code generator, please refer to [this package here](https://pub.dev/zef_di_abstractions_generator).

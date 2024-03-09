@@ -1,5 +1,6 @@
 import 'package:zef_di_abstractions/zef_di_abstractions.dart';
 import 'package:any_of/any_of.dart';
+import 'package:zef_helpers_lazy/zef_helpers_lazy.dart';
 
 abstract class ServiceLocatorAdapter {
   /// Registers an instance of type [T].
@@ -18,6 +19,15 @@ abstract class ServiceLocatorAdapter {
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
+    required List<Type>? interfaces,
+    required String? name,
+    required dynamic key,
+    required String? environment,
+    required bool allowMultipleInstances,
+  });
+
+  Triplet<Success, Conflict, InternalError> registerLazy<T extends Object>(
+    Lazy<T> lazyInstance, {
     required List<Type>? interfaces,
     required String? name,
     required dynamic key,
