@@ -50,7 +50,7 @@ abstract class ServiceLocator {
   ///
   /// - [instance]: The singleton instance to be registered with the service locator. This instance must
   ///   be a non-null object and will be returned for all future resolutions of type [T].
-  /// - [interfaces]: An optional list of interfaces or abstract classes that the singleton instance implements.
+  /// - [interfaces]: An optional `Set` of interfaces or abstract classes that the singleton instance implements.
   ///   This allows the instance to be resolved not only by its concrete type but also by any of the specified
   ///   interfaces, promoting a more flexible and decoupled design.
   /// - [name]: An optional identifier that can be used to distinguish between multiple registrations
@@ -70,7 +70,7 @@ abstract class ServiceLocator {
   /// locator adapter, particularly when internal validation or consistency checks fail.
   void registerInstance<T extends Object>(
     T instance, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -86,7 +86,7 @@ abstract class ServiceLocator {
   /// - [factory]: A callback function that is invoked by the service locator to create an instance
   ///   of type [T]. This function can utilize the service locator for resolving dependencies
   ///   and may also use named arguments [namedArgs] passed during resolution for further customization.
-  /// - [interfaces]: An optional list of interfaces or abstract classes that the created instances
+  /// - [interfaces]: An optional `Set` of interfaces or abstract classes that the created instances
   ///   are expected to implement. This allows instances to be resolved by their interface types,
   ///   promoting loose coupling and enhancing the flexibility of your application's architecture.
   /// - [name]: An optional identifier for the factory registration, enabling the resolution of
@@ -108,7 +108,7 @@ abstract class ServiceLocator {
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -123,7 +123,7 @@ abstract class ServiceLocator {
   /// - [lazyInstance]: A [Lazy<T>] instance that encapsulates the logic for creating and managing
   ///   the lazy instance of [T]. The lazy instance will be created upon the first call to `resolve`
   ///   and cached for subsequent calls, adhering to the lazy initialization pattern.
-  /// - [interfaces]: An optional list of types (interfaces or abstract classes) that the lazy instance
+  /// - [interfaces]: An optional `Set` of types (interfaces or abstract classes) that the lazy instance
   ///   implements. This allows for resolving the instance based on its implemented interfaces rather
   ///   than its concrete type, enabling more flexible and decoupled code.
   /// - [name]: An optional identifier that can be used to distinguish between multiple registrations
@@ -141,7 +141,7 @@ abstract class ServiceLocator {
   /// when internal consistency checks or validations fail.
   void registerLazy<T extends Object>(
     Lazy<T> lazyInstance, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -231,7 +231,7 @@ abstract class ServiceLocator {
   ///
   /// This method provides a safe and flexible approach to resolving optional dependencies within an application,
   /// aligning with practices that favor resilience and robustness in service resolution.
-  List<T> resolveAll<T extends Object>({
+  Set<T> resolveAll<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
