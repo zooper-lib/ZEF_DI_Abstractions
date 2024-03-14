@@ -1,3 +1,7 @@
+## 1.3.0
+
+- Added annotation `DependencyModule`
+
 ## 1.2.1
 
 - Changed the interfaces from `List` to `Set`
