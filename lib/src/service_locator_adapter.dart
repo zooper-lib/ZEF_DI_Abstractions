@@ -6,7 +6,7 @@ abstract class ServiceLocatorAdapter {
   /// Registers an instance of type [T].
   Triplet<Success, Conflict, InternalError> registerInstance<T extends Object>(
     T instance, {
-    required List<Type>? interfaces,
+    required Set<Type>? interfaces,
     required String? name,
     required dynamic key,
     required String? environment,
@@ -19,7 +19,7 @@ abstract class ServiceLocatorAdapter {
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
-    required List<Type>? interfaces,
+    required Set<Type>? interfaces,
     required String? name,
     required dynamic key,
     required String? environment,
@@ -28,7 +28,7 @@ abstract class ServiceLocatorAdapter {
 
   Triplet<Success, Conflict, InternalError> registerLazy<T extends Object>(
     Lazy<T> lazyInstance, {
-    required List<Type>? interfaces,
+    required Set<Type>? interfaces,
     required String? name,
     required dynamic key,
     required String? environment,
@@ -44,8 +44,8 @@ abstract class ServiceLocatorAdapter {
     required bool resolveFirst,
   });
 
-  /// Retrieves a List of instances of type [T].
-  Triplet<List<T>, NotFound, InternalError> resolveAll<T extends Object>({
+  /// Retrieves a Set of instances of type [T].
+  Triplet<Set<T>, NotFound, InternalError> resolveAll<T extends Object>({
     required String? name,
     required dynamic key,
     required String? environment,

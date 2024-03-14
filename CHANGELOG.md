@@ -1,3 +1,8 @@
+## 1.2.1
+
+- Changed the interfaces from `List` to `Set`
+- Changed the return type from `List` to `Set`
+
 ## 1.2.0
 
 - Added methods for lazy registration

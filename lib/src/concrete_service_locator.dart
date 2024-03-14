@@ -19,7 +19,7 @@ class ConcreteServiceLocator implements ServiceLocator {
   @override
   void registerInstance<T extends Object>(
     T instance, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -55,7 +55,7 @@ class ConcreteServiceLocator implements ServiceLocator {
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -88,7 +88,7 @@ class ConcreteServiceLocator implements ServiceLocator {
   @override
   void registerLazy<T extends Object>(
     Lazy<T> lazyInstance, {
-    List<Type>? interfaces,
+    Set<Type>? interfaces,
     String? name,
     dynamic key,
     String? environment,
@@ -185,7 +185,7 @@ class ConcreteServiceLocator implements ServiceLocator {
   }
 
   @override
-  List<T> resolveAll<T extends Object>({
+  Set<T> resolveAll<T extends Object>({
     Type? interface,
     String? name,
     dynamic key,
@@ -205,7 +205,7 @@ class ConcreteServiceLocator implements ServiceLocator {
         throw StateError(noRegistrationFoundForType(T));
       } else {
         Logger.I.warning(message: noRegistrationFoundForType(T));
-        return [];
+        return {};
       }
     }
 
