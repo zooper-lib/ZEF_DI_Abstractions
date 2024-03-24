@@ -1,6 +1,6 @@
 name: zef_di_abstractions
 description: A dart library which provides abstractions for dependency injection.
-version: 1.3.0
+version: 2.0.0
 homepage: https://www.zooper.dev
 repository: https://github.com/zooper-lib/ZEF_DI_Abstractions
 topics:
