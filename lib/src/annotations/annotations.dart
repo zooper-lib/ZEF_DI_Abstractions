@@ -3,7 +3,7 @@
 /// Serves as the foundation for various types of service registrations, including singleton instances,
 /// factories, lazy services, and factory methods. It standardizes essential attributes for unique
 /// service identification and management across different registration types.
-abstract class BaseRegister {
+abstract class DependencyRegistration {
   final String? _name;
   final dynamic _key;
   final String? _environment;
@@ -16,7 +16,7 @@ abstract class BaseRegister {
   ///   beneficial in intricate scenarios where simple type and name matching is inadequate.
   /// - [environment]: An optional specifier delineating the registration's applicability to certain runtime
   ///   environments or configurations, supporting tailored service provisioning.
-  const BaseRegister({String? name, dynamic key, String? environment})
+  const DependencyRegistration({String? name, dynamic key, String? environment})
       : _name = name,
         _key = key,
         _environment = environment;
@@ -33,32 +33,32 @@ abstract class BaseRegister {
 
 /// Designates a singleton instance registration within the service locator.
 ///
-/// Extends [BaseRegister] to include common identification and management attributes, specifically
+/// Extends [DependencyRegistration] to include common identification and management attributes, specifically
 /// tailored for singleton instance registrations. This type ensures that a single instance of the
 /// service is used application-wide, preserving state and consistency.
-class RegisterInstance extends BaseRegister {
+class RegisterSingleton extends DependencyRegistration {
   /// Establishes a singleton instance registration with customizable attributes.
-  const RegisterInstance({super.name, super.key, super.environment});
+  const RegisterSingleton({super.name, super.key, super.environment});
 }
 
 /// Denotes a registration for lazy initialization of services within the service locator.
 ///
-/// Builds upon [BaseRegister], incorporating attributes for service identification and management
+/// Builds upon [DependencyRegistration], incorporating attributes for service identification and management
 /// with an emphasis on lazy initialization. This approach delays service instantiation until its
 /// first use, optimizing resource consumption and potentially improving application startup performance.
-class RegisterLazy extends BaseRegister {
+class RegisterLazy extends DependencyRegistration {
   /// Sets up a lazy service registration with configurable identification and management options.
   const RegisterLazy({super.name, super.key, super.environment});
 }
 
 /// Indicates a factory registration for dynamic service creation within the service locator.
 ///
-/// Inherits from [BaseRegister], retaining identification and management attributes while focusing
+/// Inherits from [DependencyRegistration], retaining identification and management attributes while focusing
 /// on factory-based service instantiation. This registration type enables dynamic, on-demand creation
 /// of service instances, allowing for flexibility and customization in service provisioning.
-class RegisterFactory extends BaseRegister {
+class RegisterTransient extends DependencyRegistration {
   /// Initiates a factory registration with modifiable service identification and management settings.
-  const RegisterFactory({super.name, super.key, super.environment});
+  const RegisterTransient({super.name, super.key, super.environment});
 }
 
 /// Marks a registration that employs a factory method for service instantiation within the service locator.
@@ -74,7 +74,7 @@ class RegisterFactoryMethod {
 /// Marks a class as a dependency registration module within the service locator.
 ///
 /// This annotation is used to designate a class that contains methods or getters annotated
-/// with [RegisterInstance], [RegisterFactory], [RegisterLazy], or [RegisterFactoryMethod],
+/// with [RegisterSingleton], [RegisterTransient], [RegisterLazy], or [RegisterFactoryMethod],
 /// each defining a specific service registration. The `DependencyModule` serves as a container
 /// for organizing multiple service registrations in a structured and cohesive manner.
 ///
@@ -88,12 +88,12 @@ class RegisterFactoryMethod {
 ///   @RegisterSingleton
 ///   SomeService get someService => SomeServiceImpl();
 ///
-///   @RegisterFactory
+///   @RegisterTransient
 ///   AnotherService createAnotherService() => AnotherServiceImpl();
 /// }
 /// ```
 class DependencyModule {
-  /// Constructs a `DependencyModule` annotation, marking the annotated class as a container for
+  /// Constructs a [DependencyModule] annotation, marking the annotated class as a container for
   /// service registration definitions.
   const DependencyModule();
 }

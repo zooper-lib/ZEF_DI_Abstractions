@@ -1,3 +1,7 @@
+## 2.0.0
+
+- Changed the names of the annotations to better reflect it's registration type
+
 ## 1.3.0
 
 - Added annotation `DependencyModule`
