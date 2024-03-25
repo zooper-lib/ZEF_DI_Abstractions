@@ -68,7 +68,7 @@ abstract class ServiceLocator {
   /// locator's registry.
   /// Further errors might be thrown based on the specific behavior or constraints of the underlying service
   /// locator adapter, particularly when internal validation or consistency checks fail.
-  void registerInstance<T extends Object>(
+  void registerSingleton<T extends Object>(
     T instance, {
     Set<Type>? interfaces,
     String? name,
@@ -103,7 +103,7 @@ abstract class ServiceLocator {
   /// consistency of registrations based on type, interfaces, name, key, and environment.
   /// Additional errors may be encountered based on the service locator's underlying implementation,
   /// particularly if internal validation fails or if there are issues during the resolution process.
-  void registerFactory<T extends Object>(
+  void registerTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
