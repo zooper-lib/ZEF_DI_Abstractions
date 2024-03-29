@@ -24,7 +24,7 @@ class ConcreteServiceLocator implements ServiceLocator {
     dynamic key,
     String? environment,
   }) {
-    final response = _adapter.registerInstance<T>(
+    final response = _adapter.registerSingleton<T>(
       instance,
       interfaces: interfaces,
       name: name,
@@ -80,7 +80,7 @@ class ConcreteServiceLocator implements ServiceLocator {
     dynamic key,
     String? environment,
   }) {
-    final response = _adapter.registerFactory<T>(
+    final response = _adapter.registerTransient<T>(
       factory,
       interfaces: interfaces,
       name: name,
@@ -238,13 +238,13 @@ class ConcreteServiceLocator implements ServiceLocator {
   }
 
   @override
-  void overrideInstance<T extends Object>(
+  void overrideWithSingleton<T extends Object>(
     T instance, {
     String? name,
     dynamic key,
     String? environment,
   }) {
-    final response = _adapter.overrideInstance<T>(
+    final response = _adapter.overrideWithSingleton<T>(
       instance,
       name: name,
       key: key,
@@ -258,7 +258,7 @@ class ConcreteServiceLocator implements ServiceLocator {
   }
 
   @override
-  void overrideFactory<T extends Object>(
+  void overrideWithTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
@@ -267,8 +267,28 @@ class ConcreteServiceLocator implements ServiceLocator {
     dynamic key,
     String? environment,
   }) {
-    final response = _adapter.overrideFactory<T>(
+    final response = _adapter.overrideWithTransient<T>(
       factory,
+      name: name,
+      key: key,
+      environment: environment,
+    );
+
+    // On internal error
+    if (response.isSecond) {
+      throw StateError(internalErrorOccurred(response.second.message));
+    }
+  }
+
+  @override
+  void overrideWithLazy<T extends Object>(
+    Lazy<T> lazyInstance, {
+    String? name,
+    dynamic key,
+    String? environment,
+  }) {
+    final response = _adapter.overrideWithLazy<T>(
+      lazyInstance,
       name: name,
       key: key,
       environment: environment,

@@ -1,3 +1,9 @@
+## 3.0.0
+
+- Renamed method `overrideInstance` with `overrideWithSingleton`
+- Renamed method `overrideFactory` with `overrideWithTransient`
+- Added method `overrideWithLazy`
+
 ## 2.0.1
 
 - Just a version change because of a retracted package on pub.dev

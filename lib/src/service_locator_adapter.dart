@@ -4,7 +4,7 @@ import 'package:zef_helpers_lazy/zef_helpers_lazy.dart';
 
 abstract class ServiceLocatorAdapter {
   /// Registers an instance of type [T].
-  Triplet<Success, Conflict, InternalError> registerInstance<T extends Object>(
+  Triplet<Success, Conflict, InternalError> registerSingleton<T extends Object>(
     T instance, {
     required Set<Type>? interfaces,
     required String? name,
@@ -14,7 +14,7 @@ abstract class ServiceLocatorAdapter {
   });
 
   /// Registers a factory for type [T].
-  Triplet<Success, Conflict, InternalError> registerFactory<T extends Object>(
+  Triplet<Success, Conflict, InternalError> registerTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
@@ -52,20 +52,28 @@ abstract class ServiceLocatorAdapter {
     required Map<String, dynamic> namedArgs,
   });
 
-  /// Overrides an existing registration with a new instance of type [T].
-  Doublet<Success, InternalError> overrideInstance<T extends Object>(
+  /// Overrides an existing registration with a new `Singleton` of type [T].
+  Doublet<Success, InternalError> overrideWithSingleton<T extends Object>(
     T instance, {
     required String? name,
     required dynamic key,
     required String? environment,
   });
 
-  /// Overrides an existing registration with a new factory of type [T].
-  Doublet<Success, InternalError> overrideFactory<T extends Object>(
+  /// Overrides an existing registration with a new `Transient` of type [T].
+  Doublet<Success, InternalError> overrideWithTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
+    required String? name,
+    required dynamic key,
+    required String? environment,
+  });
+
+  /// Overrides an existing registration with a new `Lazy` of type [T].
+  Doublet<Success, InternalError> overrideWithLazy<T extends Object>(
+    Lazy<T> lazyInstance, {
     required String? name,
     required dynamic key,
     required String? environment,
