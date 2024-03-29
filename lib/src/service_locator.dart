@@ -272,9 +272,9 @@ abstract class ServiceLocator {
     Map<String, dynamic>? namedArgs,
   });
 
-  /// Overrides an existing singleton registration with a new instance.
+  /// Overrides an existing registration with a new `Singleton`.
   ///
-  /// This method allows dynamically updating the service instance associated with a specific
+  /// This method allows dynamically updating the service associated with a specific
   /// registration. It's useful in scenarios where the service's state or behavior needs to be
   /// refreshed or replaced during the application's lifecycle.
   ///
@@ -286,20 +286,20 @@ abstract class ServiceLocator {
   ///
   /// Throws [StateError] if attempting to override a non-existent registration, ensuring
   /// that the integrity of the service registry is maintained.
-  void overrideInstance<T extends Object>(
+  void overrideWithSingleton<T extends Object>(
     T instance, {
     String? name,
     dynamic key,
     String? environment,
   });
 
-  /// Overrides an existing factory registration with a new factory method.
+  /// Overrides an existing registration with a new `Transient`.
   ///
   /// Useful for scenarios requiring changes in the instantiation logic of a service, this method
-  /// replaces the current factory associated with a type [T] with a new factory method. This can
+  /// replaces the current registration associated with a type [T] with a new `Transient`. This can
   /// accommodate changes in dependencies or construction logic that may occur over time.
   ///
-  /// - [factory]: The new factory method to replace the existing one. Future resolutions of
+  /// - [factory]: The new factory method to replace with. Future resolutions of
   ///   type [T] will invoke this factory.
   /// - [name]: An optional identifier to specify the named registration to override.
   /// - [key]: An optional key to provide additional specificity to the registration being overridden.
@@ -308,11 +308,33 @@ abstract class ServiceLocator {
   /// Throws [StateError] for errors encountered during the override process, such as when
   /// trying to override a non-existent factory registration, to ensure consistent and error-free
   /// service registration.
-  void overrideFactory<T extends Object>(
+  void overrideWithTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
     ) factory, {
+    String? name,
+    dynamic key,
+    String? environment,
+  });
+
+  /// Overrides an existing registration with a new `Lazy`.
+  ///
+  /// This method replaces the current registration associated with a type [T] with a new `Lazy`.
+  /// It is useful when the service instantiation logic needs to be deferred until the service is
+  /// actually needed, optimizing resource utilization and potentially improving application startup
+  /// performance.
+  ///
+  /// - [lazyInstance]: The new `Lazy` instance to replace the current registration. The lazy instance
+  ///  will be created upon the first call to `resolve` and cached for subsequent calls.
+  /// - [name]: An optional identifier to specify the named registration to override.
+  /// - [key]: An optional key to provide additional specificity to the registration being overridden.
+  /// - [environment]: An optional environment tag for targeting environment-specific lazy registrations.
+  ///
+  /// Throws [StateError] if an internal error occurs during the override process, such as when trying
+  /// to override a non-existent service, ensuring that the operation is performed safely and predictably.
+  void overrideWithLazy<T extends Object>(
+    Lazy<T> lazyInstance, {
     String? name,
     dynamic key,
     String? environment,
