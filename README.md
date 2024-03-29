@@ -23,6 +23,12 @@ class MyDIAdapter extends ServiceLocatorAdapter {
 }
 ```
 
+## Definitions
+
+- **Singleton**: You will register an instance of a type which is then stored in memory. This instance is then reused.
+- **Transient**: You will register a factory which will be called every time you resolve the type. This way you will always get a new instance.
+- **Lazy**: You will register a factory which will be called the first time you resolve the type and then the instance will be stored in memory. This way you will always get the same instance.
+
 ## Initialization and Usage
 
 With your custom adapter in place, initialize the ServiceLocator like so:
@@ -37,14 +43,14 @@ void main() {
 }
 ```
 
-### Instances
+### Singletons
 
 #### Simple registration
 
-To register an instance you directly pass an instance of the object you want to have registered:
+To register a `Singleton` you directly pass an instance of the object you want to have registered:
 
 ```dart
-ServiceLocator.I.registerInstance(MyService());
+ServiceLocator.I.registerSingleton(MyService());
 ```
 
 And to resolve that instance you call the `resolve()` method:
@@ -68,13 +74,26 @@ The same principle applies to the following registration option
 
 ---
 
+#### Registering with a factory
+
+You can also register a `Singleton` with a factory:
+
+```dart
+ServiceLocator.I.registerSingletonFactory<MyService>(
+  (serviceLocator, namedArgs) => MyService(),
+);
+```
+
+This way you have more control over the instance creation.
+Note that the factory will only be called once, and directly after the registration.
+
 #### Named registration
 
 You can pass a name with your registration.
 
 ```dart
-ServiceLocator.I.registerInstance(MyService(), name: 'One');
-ServiceLocator.I.registerInstance(MyService(), name: 'Two');
+ServiceLocator.I.registerSingleton(MyService(), name: 'One');
+ServiceLocator.I.registerSingleton(MyService(), name: 'Two');
 ```
 
 This way you can resolve different instances with ease:
@@ -92,50 +111,48 @@ The same principle as named registrations, but with a different property
 
 The same principle as named registrations, but with a different property. Mostly used to define your instances under different environments like "dev", "test", "prod", ...
 
-### Factory registration
+### Transient registration
 
 #### Simple registration
 
-The difference here to the instance registration is, that you provide a function which tells the framework how to create the instance.
-
 ```dart
-ServiceLocator.I.registerFactory<MyService>(
+ServiceLocator.I.registerTransient<MyService>(
         (serviceLocator, namedArgs) => MyService(),
       );
 ```
 
-And to resolve, you do the same as with the instance resolving:
+And to resolve, you do the same as with the `Singleton` resolution:
 
 ```dart
 final MyService myService = ServiceLocator.I.resolve<MyService>();
 ```
 
-So every time we call `resolve()` on a as factory registered type we will create a new instance of this class.
+So every time we call `resolve()` on a as `Transient` registered type we will create a new instance of this class.
 
 ---
 
 **NOTE**
 
-The difference to `registerInstance()` is, that with a factory you construct the object at runtime.
+The difference to `registerSingleton()` is, that with a `Transient` you construct the object at runtime.
 
 ---
 
 #### Resolving with parameters
 
-One feature for factories is, that you can pass arguments to resolve the instance.
+One feature for `Transient` factories is, that you can pass arguments to resolve the instance.
 First you need to tell the framework how to resolve the factory:
 
 ```dart
-ServiceLocator.I.registerFactory<UserService>(
-        (ServiceLocator locator, Map<String, dynamic> namedArgs) => UserService(
-          id: namedArgs['theUserId'] as UserId, // This is how your parameter will be provided
-          username: namedArgs['theUsername'] as String, // This is how your parameter will be provided
-          password: namedArgs['thePassword'] as String, // This is how your parameter will be provided
-        ),
-      );
+ServiceLocator.I.registerTransient<UserService>(
+  (ServiceLocator locator, Map<String, dynamic> namedArgs) => UserService(
+    id: namedArgs['theUserId'] as UserId, // This is how your parameter will be provided
+    username: namedArgs['theUsername'] as String, // This is how your parameter will be provided
+    password: namedArgs['thePassword'] as String, // This is how your parameter will be provided
+  ),
+);
 ```
 
-As you can see the Function to register a factory has two parameters:
+As you can see the function to register a factory has two parameters:
 
 - ServiceLocator locator
 - Map<String, dynamic> namedArgs
@@ -145,20 +162,20 @@ The namedArgs is a Map of arguments you will pass when trying to resolve a facto
 
 ```dart
 final UserService userService =
-          ServiceLocator.I.resolve<UserService>(
-            namedArgs: {
-              'theUserId': UserId('1'),
-              'theUsername': 'HansZimmer123',
-              'thePassword': 'blafoo1!',
-            },
-          );
+  ServiceLocator.I.resolve<UserService>(
+    namedArgs: {
+      'theUserId': UserId('1'),
+      'theUsername': 'HansZimmer123',
+      'thePassword': 'blafoo1!',
+    },
+  );
 ```
 
 If you don't pass a required named argument, a `TypeError` will be thrown.
 
 ### Lazy Registration
 
-In addition to the existing instance and factory registration capabilities, this package now supports lazy registration of services. Lazy registration allows you to defer the creation of an object until it is first needed, which can improve the startup time of your application and reduce initial memory usage.
+In addition to the existing `Singleton` and `Transient` registration capabilities, this package now supports `Lazy` registration of services. `Lazy` registration allows you to defer the creation of an object until it is first needed, which can improve the startup time of your application and reduce initial memory usage.
 
 ```dart
 ServiceLocator.I.registerLazy<MyLazyService>(
@@ -166,9 +183,7 @@ ServiceLocator.I.registerLazy<MyLazyService>(
 );
 ```
 
-With lazy registration, the `MyLazyService` instance will not be created at the time of registration but will be instantiated upon the first call to resolve.
-
-To resolve a lazy registered service, you use the same resolve method:
+To resolve a `Lazy` registered service, you use the same resolve method:
 
 ```dart
 final MyLazyService myLazyService = ServiceLocator.I.resolve<MyLazyService>();
@@ -178,9 +193,9 @@ The first call to resolve for a lazy registered service will instantiate the ser
 
 #### Advantages of Lazy Registration
 
-- Improved Startup Performance: By deferring the instantiation of services until they are actually needed, you can reduce the workload during application startup, leading to faster launch times.
-- Optimized Resource Usage: Lazy registration helps in minimizing the memory footprint at startup by only creating service instances when they are required.
-- Flexibility: This feature adds an extra layer of flexibility in managing service lifecycles, allowing for a more dynamic and responsive application structure.
+- **Improved Startup Performance**: By deferring the instantiation of services until they are actually needed, you can reduce the workload during application startup, leading to faster launch times.
+- **Optimized Resource Usage**: Lazy registration helps in minimizing the memory footprint at startup by only creating service instances when they are required.
+- **Flexibility**: This feature adds an extra layer of flexibility in managing service lifecycles, allowing for a more dynamic and responsive application structure.
 
 ## Code generation
 

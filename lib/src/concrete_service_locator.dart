@@ -17,7 +17,7 @@ class ConcreteServiceLocator implements ServiceLocator {
         _config = config ?? const ServiceLocatorConfig();
 
   @override
-  void registerInstance<T extends Object>(
+  void registerSingleton<T extends Object>(
     T instance, {
     Set<Type>? interfaces,
     String? name,
@@ -50,7 +50,27 @@ class ConcreteServiceLocator implements ServiceLocator {
   }
 
   @override
-  void registerFactory<T extends Object>(
+  void registerSingletonFactory<T extends Object>(
+    T Function(ServiceLocator serviceLocator) factory, {
+    Set<Type>? interfaces,
+    String? name,
+    dynamic key,
+    String? environment,
+  }) {
+    // Resolve the Singleton
+    final instance = factory(ServiceLocator.I);
+
+    return registerSingleton(
+      instance,
+      interfaces: interfaces,
+      name: name,
+      key: key,
+      environment: environment,
+    );
+  }
+
+  @override
+  void registerTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,
       Map<String, dynamic> namedArgs,
