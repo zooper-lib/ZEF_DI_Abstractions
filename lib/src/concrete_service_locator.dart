@@ -50,6 +50,26 @@ class ConcreteServiceLocator implements ServiceLocator {
   }
 
   @override
+  void registerSingletonFactory<T extends Object>(
+    T Function(ServiceLocator serviceLocator) factory, {
+    Set<Type>? interfaces,
+    String? name,
+    dynamic key,
+    String? environment,
+  }) {
+    // Resolve the Singleton
+    final instance = factory(ServiceLocator.I);
+
+    return registerSingleton(
+      instance,
+      interfaces: interfaces,
+      name: name,
+      key: key,
+      environment: environment,
+    );
+  }
+
+  @override
   void registerTransient<T extends Object>(
     T Function(
       ServiceLocator serviceLocator,

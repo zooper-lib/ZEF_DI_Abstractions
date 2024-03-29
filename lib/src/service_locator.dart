@@ -76,7 +76,40 @@ abstract class ServiceLocator {
     String? environment,
   });
 
-  /// Registers a factory method with the service locator for dynamic instance creation.
+  /// Registers a resolution strategy for a singleton of type [T] using a factory function, enabling custom instantiation logic.
+  ///
+  /// This method allows the consumer to specify exactly how the singleton instance of [T] should be created, offering
+  /// greater control over the instantiation process. The factory function is invoked directly after calling this function.
+  ///
+  /// - [factory]: A function that takes a [ServiceLocator] as its argument and returns an instance of type [T].
+  ///   This function encapsulates the custom logic for creating the singleton instance, leveraging the [ServiceLocator]
+  ///   for any necessary dependency resolution. This approach facilitates complex initialization scenarios where
+  ///   the instantiation of [T] might depend on other services or configurations managed by the service locator.
+  /// - [interfaces]: An optional `Set` of types that the singleton is expected to implement. This allows the singleton
+  ///   to be resolved by these interface types as well, promoting a design that favors abstraction over concrete
+  ///   implementations.
+  /// - [name]: An optional identifier to distinguish between multiple factory registrations for the same type or
+  ///   interface within the locator. Useful when the application requires different variations of the same service
+  ///   type, identifiable by name.
+  /// - [key]: An optional discriminator that provides additional granularity in the resolution process, complementing
+  ///   the type and name to facilitate more specific resolution conditions.
+  /// - [environment]: An optional tag to restrict the availability of the registered factory to certain runtime
+  ///   environments or configurations, aligning the service availability with the application's operational context.
+  ///
+  /// Throws [StateError] if a registration conflict occurs, safeguarding against unintended duplication or override
+  /// of factory registrations based on a combination of type, interfaces, name, key, and environment. The integrity
+  /// of the service locator's registry is thus preserved, ensuring consistent and predictable behavior. Additional
+  /// validation or constraint-related errors might be thrown by the service locator's implementation, reflecting
+  /// specific requirements or conditions enforced by the underlying mechanism.
+  void registerSingletonFactory<T extends Object>(
+    T Function(ServiceLocator serviceLocator) factory, {
+    Set<Type>? interfaces,
+    String? name,
+    dynamic key,
+    String? environment,
+  });
+
+  /// Registers a factory method with the service locator for transient instance creation.
   ///
   /// The factory method provides a way to instantiate objects of type [T] on demand, offering
   /// more control over the creation process. This is particularly useful for instances that
