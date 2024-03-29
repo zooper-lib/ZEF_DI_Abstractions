@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Just a version change because of a retracted package on pub.dev
+
 ## 2.0.0
 
 - Changed the names of the annotations to better reflect it's registration type
