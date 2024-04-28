@@ -2,6 +2,9 @@
 
 A dart library which provides abstractions for dependency injection.
 
+> [!CAUTION]
+> This project is discontinued, as it got renamed. Check out the new package [zef_di_core](https://pub.dev/packages/zef_di_core) instead.
+
 ## Features
 
 - **Framework Agnostic**: Designed to be a flexible wrapper, this package can be used with any Dependency Injection (DI) framework, offering a unified interface for service registration and resolution.

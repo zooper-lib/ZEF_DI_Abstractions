@@ -1,3 +1,7 @@
+## 3.0.1
+
+- Made the project deprecated
+
 ## 3.0.0
 
 - Renamed method `overrideInstance` with `overrideWithSingleton`
